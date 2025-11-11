@@ -13,7 +13,9 @@ import reverse_geocoder as rg
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-DATA_DIR = Path("/Users/mjsteenberg/11 Nov 25 - App Opens Data VoiceMap")
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR
+# DATA_DIR = Path("/Users/mjsteenberg/11 Nov 25 - App Opens Data VoiceMap")
 PORTS_PATH = DATA_DIR / "world_ports.csv"
 DEFAULT_DATA_PATHS = (
     DATA_DIR / "voicemap_app_opens_master.parquet",
