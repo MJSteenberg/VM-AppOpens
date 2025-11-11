@@ -451,6 +451,7 @@ def render_map(df: pd.DataFrame) -> None:
             f"Using adaptive H3 resolution {effective_resolution} (base {h3_resolution}) for current zoom"
         )
     clusters = build_h3_clusters(df, effective_resolution)
+    table_clusters = append_location_info(clusters)
 
     cluster_tooltip = {
         "html": "{tooltip_html}",
@@ -616,8 +617,8 @@ def render_map(df: pd.DataFrame) -> None:
                 "Top H3 cells by total opens — adjust colour percentile to tune yellow/red thresholds"
             )
             st.dataframe(
-                clusters.sort_values("total_opens", ascending=False)[
-                    ["h3_index", "total_opens", "unique_users", "mean_distance_km"]
+                table_clusters.sort_values("total_opens", ascending=False)[
+                    ["location_label", "total_opens", "unique_users", "mean_distance_km"]
                 ].head(25)
             )
 
@@ -630,8 +631,8 @@ def render_map(df: pd.DataFrame) -> None:
                 "Top H3 cells by unique users — radius slider controls circle size"
             )
             st.dataframe(
-                clusters.sort_values("unique_users", ascending=False)[
-                    ["h3_index", "unique_users", "total_opens", "mean_distance_km"]
+                table_clusters.sort_values("unique_users", ascending=False)[
+                    ["location_label", "unique_users", "total_opens", "mean_distance_km"]
                 ].head(25)
             )
 
