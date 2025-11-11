@@ -1,0 +1,8 @@
+streamlit
+pandas
+pyarrow
+numpy
+pydeck
+h3
+reverse_geocoder
+pycountry
