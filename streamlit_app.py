@@ -452,6 +452,12 @@ def render_map(df: pd.DataFrame) -> None:
         )
     clusters = build_h3_clusters(df, effective_resolution)
     table_clusters = append_location_info(clusters)
+    table_total = table_clusters.sort_values("total_opens", ascending=False)[
+        ["location_label", "total_opens", "unique_users", "mean_distance_km"]
+    ]
+    table_unique = table_clusters.sort_values("unique_users", ascending=False)[
+        ["location_label", "unique_users", "total_opens", "mean_distance_km"]
+    ]
 
     cluster_tooltip = {
         "html": "{tooltip_html}",
@@ -549,35 +555,34 @@ def render_map(df: pd.DataFrame) -> None:
             cluster_layers_opens.append(ports_layer)
             cluster_layers_users.append(ports_layer)
 
-        if view_state.zoom > 3.3:
-            cluster_layers_opens.append(
-                pdk.Layer(
-                    "ScatterplotLayer",
-                    data=opens_points,
-                    get_position="[lng, lat]",
-                    get_radius="radius_scaled",
-                    radius_scale=1,
-                    radius_min_pixels=5,
-                    radius_max_pixels=80,
-                    stroked=False,
-                    get_fill_color=[255, 87, 34, 120],
-                    pickable=False,
-                )
+        cluster_layers_opens.append(
+            pdk.Layer(
+                "ScatterplotLayer",
+                data=opens_points,
+                get_position="[lng, lat]",
+                get_radius="radius_scaled",
+                radius_scale=1,
+                radius_min_pixels=3,
+                radius_max_pixels=100,
+                stroked=False,
+                get_fill_color=[255, 87, 34, 120],
+                pickable=False,
             )
-            cluster_layers_users.append(
-                pdk.Layer(
-                    "ScatterplotLayer",
-                    data=users_points,
-                    get_position="[lng, lat]",
-                    get_radius="radius_scaled",
-                    radius_scale=1,
-                    radius_min_pixels=5,
-                    radius_max_pixels=80,
-                    stroked=False,
-                    get_fill_color=[0, 109, 44, 120],
-                    pickable=False,
-                )
+        )
+        cluster_layers_users.append(
+            pdk.Layer(
+                "ScatterplotLayer",
+                data=users_points,
+                get_position="[lng, lat]",
+                get_radius="radius_scaled",
+                radius_scale=1,
+                radius_min_pixels=3,
+                radius_max_pixels=100,
+                stroked=False,
+                get_fill_color=[0, 109, 44, 120],
+                pickable=False,
             )
+        )
 
         opens_deck = pdk.Deck(
             layers=cluster_layers_opens,
@@ -616,11 +621,7 @@ def render_map(df: pd.DataFrame) -> None:
             st.caption(
                 "Top H3 cells by total opens — adjust colour percentile to tune yellow/red thresholds"
             )
-            st.dataframe(
-                table_clusters.sort_values("total_opens", ascending=False)[
-                    ["location_label", "total_opens", "unique_users", "mean_distance_km"]
-                ].head(25)
-            )
+            st.dataframe(table_total)
 
     with tab_users:
         if users_deck is None:
@@ -630,11 +631,7 @@ def render_map(df: pd.DataFrame) -> None:
             st.caption(
                 "Top H3 cells by unique users — radius slider controls circle size"
             )
-            st.dataframe(
-                table_clusters.sort_values("unique_users", ascending=False)[
-                    ["location_label", "unique_users", "total_opens", "mean_distance_km"]
-                ].head(25)
-            )
+            st.dataframe(table_unique)
 
     with st.expander("Raw data sample"):
         st.dataframe(df.head(5000))
